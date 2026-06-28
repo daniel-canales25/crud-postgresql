@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
@@ -23,12 +23,24 @@ export class ProductsService {
     return newProduct;
   }
 
-  findAll() {
-    return this.products;
+  findAll(search?: string) {
+    if (!search) {
+      return this.products;
+    }
+    const lower = search.toLocaleLowerCase();
+    return this.products.filter(
+      (p) =>
+        p.nombre.toLowerCase().includes(lower) ||
+        p.descripcion.toLowerCase().includes(lower),
+    );
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  findOne(id: string) {
+    const product = this.products.find((p) => p.id === id);
+    if (!product) {
+      throw new NotFoundException(`Producto con id ${id} no encontrado`);
+    }
+    return product;
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
