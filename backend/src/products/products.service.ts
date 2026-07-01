@@ -43,11 +43,21 @@ export class ProductsService {
     return product;
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  update(id: string, updateProductDto: UpdateProductDto) {
+    const product = this.findOne(id);
+    const updateProduct = {
+      ...product,
+      ...updateProductDto,
+      update_at: new Date().toISOString(),
+      id: id,
+    };
+    this.products = this.products.map((p) => (p.id === id ? updateProduct : p));
+    return updateProduct;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  remove(id: string) {
+    const product = this.findOne(id);
+    this.products = this.products.filter((p) => p.id !== product.id);
+    return `El producto con id ${id} ha sido borrado con exito`;
   }
 }
